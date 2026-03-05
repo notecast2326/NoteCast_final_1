@@ -117,12 +117,7 @@ class Notice(models.Model):
                 pdf_path = Path(self.file_upload.path)
                 print("PDF Path:", pdf_path)
 
-                pages = convert_from_path(
-                    str(pdf_path),
-                    first_page=1,
-                    last_page=1,
-                    poppler_path=r"C:/poppler-25.12.0/Library/bin"
-                )
+                pages = convert_from_path(str(pdf_path), first_page=1, last_page=1)
 
                 if pages:
                     thumb_filename = f"notice_{self.pk}.jpg"
