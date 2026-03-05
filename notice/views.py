@@ -42,6 +42,20 @@ from .forms import NoticeForm
 from .models import Notice, User  # Ensure your User model is correct
 from .notifications import send_user_notification  # Your push notification helper
 
+from threading import Thread
+import os
+from pdf2image import convert_from_path
+from django.conf import settings
+from django.core.files import File
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from webpush import send_user_notification
+
+from .forms import NoticeForm
+from .models import User, Notice
+
+
 @login_required
 def create_notice(request):
     if request.user.user_type not in ['hod', 'staff']:
@@ -60,84 +74,79 @@ def create_notice(request):
                 notice.category = 'department'
                 notice.department = request.user.department
 
-            # Save first to get ID
+            # Save notice to get ID
             notice.save()
 
-            # PDF THUMBNAIL
-            # PDF THUMBNAIL
+            # --- PDF THUMBNAIL (Async) ---
             if notice.file_upload:
-                pdf_path = notice.file_upload.path
-                try:
-                    pages = convert_from_path(pdf_path, dpi=100)
-                    first_page = pages[0]
+                def generate_thumbnail(notice_obj):
+                    try:
+                        pdf_path = notice_obj.file_upload.path
+                        pages = convert_from_path(pdf_path, dpi=100)
+                        first_page = pages[0]
 
-                    # Create thumbnails folder if it doesn't exist
-                    thumbnail_dir = os.path.join(settings.MEDIA_ROOT, 'thumbnails')
-                    os.makedirs(thumbnail_dir, exist_ok=True)
+                        thumbnail_dir = os.path.join(settings.MEDIA_ROOT, 'thumbnails')
+                        os.makedirs(thumbnail_dir, exist_ok=True)
 
-                    # Save thumbnail temporarily
-                    thumbnail_path = os.path.join(thumbnail_dir, f'{notice.id}.png')
-                    first_page.save(thumbnail_path, 'PNG')
+                        thumbnail_path = os.path.join(thumbnail_dir, f'{notice_obj.id}.png')
+                        first_page.save(thumbnail_path, 'PNG')
 
-                    # Save thumbnail to ImageField properly
-                    from django.core.files import File
-                    with open(thumbnail_path, 'rb') as f:
-                        notice.thumbnail.save(f'{notice.id}.png', File(f), save=True)
+                        with open(thumbnail_path, 'rb') as f:
+                            notice_obj.thumbnail.save(f'{notice_obj.id}.png', File(f), save=True)
+                    except Exception as e:
+                        print("Thumbnail generation failed:", e)
 
-                except Exception as e:
-                    print("Thumbnail generation failed:", e)
+                Thread(target=generate_thumbnail, args=(notice,)).start()
 
-            # EMAIL
+            # --- EMAIL (Async) ---
             subject = (
                 f"🛑 URGENT NOTIFICATION HAS ARRIVED 🛑 - {notice.notice_subject}"
                 if notice.display_category == 'urgent'
                 else f"New notice: {notice.notice_subject}"
             )
-            message = f"{notice.notice_subject}\n\n{notice.message}\n\nPlease login to portal for full details."
+            message = (
+                f"{notice.notice_subject}\n\n{notice.message}\n\n"
+                "Please login to portal for full details."
+            )
 
-            recipient_list = []
             if request.user.user_type == 'hod':
-                students = User.objects.filter(user_type='student', department=request.user.department)
-                recipient_list = [s.email for s in students]
-            elif request.user.user_type == 'staff':
-                users = User.objects.filter(user_type__in=['student', 'hod'])
-                recipient_list = [u.email for u in users]
+                recipient_list = User.objects.filter(
+                    user_type='student',
+                    department=request.user.department
+                ).values_list('email', flat=True)
+            else:  # staff
+                recipient_list = User.objects.filter(
+                    user_type__in=['student', 'hod']
+                ).values_list('email', flat=True)
 
             if recipient_list:
-                try:
-                    # Send email in a separate thread
-                    Thread(
-                        target=send_mail,
-                        args=(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list),
-                        kwargs={'fail_silently': False}
-                    ).start()
-                except Exception as e:
-                    print("Email sending failed:", e)
+                def send_email_async():
+                    try:
+                        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=False)
+                    except Exception as e:
+                        print("Email sending failed:", e)
 
-            # PUSH NOTIFICATION
+                Thread(target=send_email_async).start()
+
+            # --- PUSH NOTIFICATIONS ---
             payload = {"head": "New notice Published", "body": notice.notice_subject}
 
             if request.user.user_type == 'hod':
-                students = User.objects.filter(user_type='student', department=request.user.department)
-                for student in students:
-                    try:
-                        send_user_notification(user=student, payload=payload, ttl=1000)
-                    except Exception as e:
-                        print(f"Push notification failed for {student.email}: {e}")
-            elif request.user.user_type == 'staff':
-                users = User.objects.filter(user_type__in=['student', 'hod'])
-                for user in users:
-                    try:
-                        send_user_notification(user=user, payload=payload, ttl=1000)
-                    except Exception as e:
-                        print(f"Push notification failed for {user.email}: {e}")
+                users_to_notify = User.objects.filter(user_type='student', department=request.user.department)
+            else:  # staff
+                users_to_notify = User.objects.filter(user_type__in=['student', 'hod'])
+
+            for user in users_to_notify:
+                try:
+                    send_user_notification(user=user, payload=payload, ttl=1000)
+                except Exception as e:
+                    print(f"Push notification failed for {user.email}: {e}")
 
             return redirect('notice_list')
     else:
         form = NoticeForm()
 
     return render(request, 'create_notice.html', {'form': form})
-
 @login_required
 def notice_categories(request):
 
