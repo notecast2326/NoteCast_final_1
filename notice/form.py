@@ -1,9 +1,3 @@
-import re
-
-from django import forms
-from .models import Notice
-from django import forms
-from .models import CustomUser
 
 
 

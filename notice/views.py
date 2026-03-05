@@ -15,7 +15,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from webpush import send_user_notification
-
+from threading import Thread
+from django.core.mail import send_mail
 def home(request):
     latest_events = Notice.objects.filter(
         display_category='events'
@@ -98,7 +99,10 @@ def create_notice(request):
 
             if recipient_list:
                 try:
-                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=False)
+
+                    def send_email_async(subject, message, from_email, recipient_list):
+                        Thread(target=send_mail, args=(subject, message, from_email, recipient_list),
+                               kwargs={'fail_silently': False}).start()
                 except Exception as e:
                     print("Email sending failed:", e)
 
