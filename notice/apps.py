@@ -5,4 +5,4 @@ class NoticeConfig(AppConfig):
     name = 'notice'
 
     def ready(self):
-        import Notice.signals  # noqa
+        import notice.signals  # noqa
