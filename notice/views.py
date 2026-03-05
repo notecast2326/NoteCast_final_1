@@ -105,10 +105,12 @@ def create_notice(request):
 
             if recipient_list:
                 try:
-
-                    def send_email_async(subject, message, from_email, recipient_list):
-                        Thread(target=send_mail, args=(subject, message, from_email, recipient_list),
-                               kwargs={'fail_silently': False}).start()
+                    # Send email in a separate thread
+                    Thread(
+                        target=send_mail,
+                        args=(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list),
+                        kwargs={'fail_silently': False}
+                    ).start()
                 except Exception as e:
                     print("Email sending failed:", e)
 
