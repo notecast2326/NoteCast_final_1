@@ -51,14 +51,14 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Notice',
+            name='notice',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('notice_subject', models.CharField(max_length=200)),
                 ('message', models.TextField()),
                 ('file_upload', models.FileField(blank=True, null=True, upload_to='notices/')),
                 ('thumbnail', models.ImageField(blank=True, null=True, upload_to='thumbnails/')),
-                ('category', models.CharField(choices=[('office', 'Office Notice'), ('department', 'Department Notice')], max_length=20)),
+                ('category', models.CharField(choices=[('office', 'Office notice'), ('department', 'Department notice')], max_length=20)),
                 ('display_category', models.CharField(choices=[('academic', 'Academic Notices'), ('events', 'Events & Programs'), ('department_updates', 'Department Notices'), ('exam', 'Exam Notifications'), ('holiday', 'Holiday Announcements'), ('urgent', 'Urgent Alerts'), ('clubs', 'Clubs & Activities')], max_length=30)),
                 ('department', models.CharField(blank=True, max_length=100, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),

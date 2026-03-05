@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Notice',
+    'notice',
     'webpush',
 ]
 
@@ -162,7 +162,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'Notice/static')
+    os.path.join(BASE_DIR, 'notice/static')
 ]
 
 MEDIA_URL = '/media/'
@@ -174,7 +174,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTH_USER_MODEL = 'Notice.CustomUser'
+AUTH_USER_MODEL = 'notice.CustomUser'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'profile'

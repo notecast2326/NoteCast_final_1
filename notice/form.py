@@ -20,8 +20,8 @@ class NoticeForm(forms.ModelForm):
         model = Notice
         fields = ['notice_subject', 'display_category', 'message', 'file_upload', 'thumbnail']
         labels = {
-            'notice_subject': 'Notice Title',
-            'display_category': 'Notice Type',
+            'notice_subject': 'notice Title',
+            'display_category': 'notice Type',
             'message': 'Description',
             'file_upload': 'Attachment (Optional)',
             'thumbnail': 'Thumbnail Image (Optional)'

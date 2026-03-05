@@ -84,7 +84,7 @@ def create_notice(request):
             subject = (
                 f"🛑 URGENT NOTIFICATION HAS ARRIVED 🛑 - {notice.notice_subject}"
                 if notice.display_category == 'urgent'
-                else f"New Notice: {notice.notice_subject}"
+                else f"New notice: {notice.notice_subject}"
             )
             message = f"{notice.notice_subject}\n\n{notice.message}\n\nPlease login to portal for full details."
 
@@ -103,7 +103,7 @@ def create_notice(request):
                     print("Email sending failed:", e)
 
             # PUSH NOTIFICATION
-            payload = {"head": "New Notice Published", "body": notice.notice_subject}
+            payload = {"head": "New notice Published", "body": notice.notice_subject}
 
             if request.user.user_type == 'hod':
                 students = User.objects.filter(user_type='student', department=request.user.department)

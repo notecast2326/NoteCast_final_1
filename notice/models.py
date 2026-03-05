@@ -73,8 +73,8 @@ class CustomUser(AbstractUser):
 class Notice(models.Model):
 
     NOTICE_CATEGORY = (
-        ('office', 'Office Notice'),
-        ('department', 'Department Notice'),
+        ('office', 'Office notice'),
+        ('department', 'Department notice'),
     )
 
     DISPLAY_CATEGORY = (
