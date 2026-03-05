@@ -1,6 +1,8 @@
 from django.apps import AppConfig
 
-
 class NoticeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Notice'
+
+    def ready(self):
+        import Notice.signals  # noqa

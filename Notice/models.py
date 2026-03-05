@@ -104,33 +104,3 @@ class Notice(models.Model):
 
     # ✅ AUTOMATIC THUMBNAIL GENERATION
 
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
-
-        if is_new and self.file_upload and self.file_upload.name.lower().endswith('.pdf'):
-
-            try:
-                from pathlib import Path
-
-                # Use Path for safe Windows handling
-                pdf_path = Path(self.file_upload.path)
-                print("PDF Path:", pdf_path)
-
-                pages = convert_from_path(str(pdf_path), first_page=1, last_page=1)
-
-                if pages:
-                    thumb_filename = f"notice_{self.pk}.jpg"
-                    thumb_path = Path(settings.MEDIA_ROOT) / "thumbnails" / thumb_filename
-
-                    thumb_path.parent.mkdir(parents=True, exist_ok=True)
-
-                    pages[0].save(str(thumb_path), "JPEG")
-
-                    self.thumbnail = f"thumbnails/{thumb_filename}"
-                    super().save(update_fields=["thumbnail"])
-
-                    print("✅ Thumbnail created successfully!")
-
-            except Exception as e:
-                print("❌ Thumbnail generation failed:", e)
