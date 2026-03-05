@@ -84,8 +84,24 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- ✅ MOVED FILE INPUT INSIDE FORM -->
-                <input type="file" name="photo" id="photoInput" style="display:none">
+    <!-- PROFILE PHOTO SECTION -->
+<div class="profile-image-wrapper">
+    {% if user.photo %}
+        <img src="{{ user.photo.url }}" class="profile-photo">
+    {% else %}
+        <div class="profile-placeholder">
+            <i class="fa fa-user"></i>
+        </div>
+    {% endif %}
+
+    <!-- Camera Icon to trigger file input -->
+    <div class="photo-edit-icon" onclick="document.getElementById('photoInput').click();">
+        <i class="fa fa-camera"></i>
+    </div>
+
+    <!-- Hidden file input for uploading photo -->
+    <input type="file" name="photo" id="photoInput" style="display:none;">
+</div>
 
                 <!-- PHONE -->
                 <div class="profile-field">
