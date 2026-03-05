@@ -9,6 +9,12 @@ from .models import CustomUser
 
 # ================= NOTICE FORM =================
 
+import re
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Notice, CustomUser
+
+# ================= NOTICE FORM =================
 class NoticeForm(forms.ModelForm):
     class Meta:
         model = Notice
@@ -21,30 +27,23 @@ class NoticeForm(forms.ModelForm):
             'thumbnail': 'Thumbnail Image (Optional)'
         }
 
-
 # ================= COMMON VALIDATIONS =================
-
 def validate_username(username):
     if not re.match(r'^[A-Za-z ]+$', username):
         raise ValidationError("Username can contain only letters and spaces.")
 
-
 def validate_password(password):
     if len(password) < 5:
         raise ValidationError("Password must be at least 5 characters.")
-
     if not re.search(r'[A-Za-z]', password):
         raise ValidationError("Password must contain at least one letter.")
-
     if not re.search(r'[0-9]', password):
         raise ValidationError("Password must contain at least one number.")
-
     if not re.search(r'[@$!%*#?&]', password):
         raise ValidationError("Password must contain at least one special character.")
 
-
-# ================= STUDENT REGISTER =================
-
+# ================= STUDENT / HOD / STAFF FORMS =================
+# (As in your original code, make sure commit=True in save methods)
 class StudentRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
