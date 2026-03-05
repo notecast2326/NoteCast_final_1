@@ -58,7 +58,7 @@
             <div class="profile-image-wrapper">
 
                 {% if user.photo %}
-                    <img src="{{ user.photo.url }}" class="profile-photo" onerror="this.src='{% static 'images/default_profile.png' %}'">
+                    <img src="{{ user.photo.url }}?{{ user.photo.name|urlencode }}" class="profile-photo">
                 {% else %}
                     <div class="profile-placeholder">
                         <i class="fa fa-user"></i>
