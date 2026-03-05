@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Notice
-from .form import NoticeForm, StudentRegisterForm, HodRegisterForm, StaffRegisterForm, EmailLoginForm, ProfileUpdateForm
+from .forms import NoticeForm, StudentRegisterForm, HodRegisterForm, StaffRegisterForm, EmailLoginForm, ProfileUpdateForm
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -291,7 +291,7 @@ def user_login(request):
         form = EmailLoginForm()
     return render(request, 'login.html', {'form': form})
 
-from .form import ProfileUpdateForm
+from .forms import ProfileUpdateForm
 
 @login_required
 def profile(request):
