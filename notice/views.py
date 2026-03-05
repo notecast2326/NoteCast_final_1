@@ -64,20 +64,26 @@ def create_notice(request):
             notice.save()
 
             # PDF THUMBNAIL
+            # PDF THUMBNAIL
             if notice.file_upload:
                 pdf_path = notice.file_upload.path
                 try:
                     pages = convert_from_path(pdf_path, dpi=100)
                     first_page = pages[0]
 
+                    # Create thumbnails folder if it doesn't exist
                     thumbnail_dir = os.path.join(settings.MEDIA_ROOT, 'thumbnails')
                     os.makedirs(thumbnail_dir, exist_ok=True)
 
+                    # Save thumbnail temporarily
                     thumbnail_path = os.path.join(thumbnail_dir, f'{notice.id}.png')
                     first_page.save(thumbnail_path, 'PNG')
 
-                    notice.thumbnail = f'thumbnails/{notice.id}.png'
-                    notice.save()
+                    # Save thumbnail to ImageField properly
+                    from django.core.files import File
+                    with open(thumbnail_path, 'rb') as f:
+                        notice.thumbnail.save(f'{notice.id}.png', File(f), save=True)
+
                 except Exception as e:
                     print("Thumbnail generation failed:", e)
 
