@@ -92,7 +92,7 @@ class Notice(models.Model):
     file_upload = models.FileField(upload_to='notices/', blank=True, null=True)
 
     # ✅ NEW FIELD
-    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
+    thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
 
     category = models.CharField(max_length=20, choices=NOTICE_CATEGORY)
     display_category = models.CharField(max_length=30, choices=DISPLAY_CATEGORY)
