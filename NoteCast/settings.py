@@ -165,9 +165,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'notice/static')
 ]
 
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
