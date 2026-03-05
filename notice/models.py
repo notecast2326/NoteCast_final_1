@@ -89,7 +89,7 @@ class Notice(models.Model):
 
     notice_subject = models.CharField(max_length=200)
     message = models.TextField()
-   file_upload = models.FileField(upload_to='notices/', null=True, blank=True)
+    file_upload = models.FileField(upload_to='notices/', null=True, blank=True)
 
     # ✅ NEW FIELD
     thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
