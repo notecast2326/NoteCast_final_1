@@ -113,11 +113,11 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQLDATABASE'),
+        'NAME': os.environ.get('MYSQL_DATABASE'),
         'USER': os.environ.get('MYSQLUSER'),
         'PASSWORD': os.environ.get('MYSQLPASSWORD'),
         'HOST': os.environ.get('MYSQLHOST'),
-        'PORT': os.environ.get('MYSQLPORT'),
+        'PORT': int(os.environ.get('MYSQLPORT', 3306)),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
