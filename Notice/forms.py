@@ -1,11 +1,9 @@
-
-
-
 # ================= NOTICE FORM =================
 
 import re
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Notice, CustomUser
 
 # ================= NOTICE FORM =================
@@ -14,11 +12,11 @@ class NoticeForm(forms.ModelForm):
         model = Notice
         fields = ['notice_subject', 'display_category', 'message', 'file_upload', 'thumbnail']
         labels = {
-            'notice_subject': 'notice Title',
-            'display_category': 'notice Type',
+            'notice_subject': 'Notice Title',
+            'display_category': 'Notice Type',
             'message': 'Description',
             'file_upload': 'Attachment (Optional)',
-            'thumbnail': 'Thumbnail Image (Optional)'
+            'thumbnail': 'Thumbnail Image (Optional)',
         }
 
 # ================= COMMON VALIDATIONS =================
@@ -37,7 +35,7 @@ def validate_password(password):
         raise ValidationError("Password must contain at least one special character.")
 
 # ================= STUDENT / HOD / STAFF FORMS =================
-# (As in your original code, make sure commit=True in save methods)
+
 class StudentRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -52,13 +50,10 @@ class StudentRegisterForm(forms.ModelForm):
 
     def clean_admission_no(self):
         admission_no = self.cleaned_data.get('admission_no')
-
         if not admission_no.isdigit():
             raise ValidationError("Admission number must contain only digits.")
-
         if len(admission_no) != 4:
             raise ValidationError("Admission number must be exactly 4 digits.")
-
         return admission_no
 
     def clean_password(self):
@@ -74,9 +69,6 @@ class StudentRegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
-
-# ================= HOD REGISTER =================
 
 class HodRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -104,9 +96,6 @@ class HodRegisterForm(forms.ModelForm):
             user.save()
         return user
 
-
-# ================= STAFF REGISTER =================
-
 class StaffRegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -133,14 +122,7 @@ class StaffRegisterForm(forms.ModelForm):
             user.save()
         return user
 
-
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate
-
-
 # ================= LOGIN FORM =================
-
 class EmailLoginForm(AuthenticationForm):
     username = forms.EmailField(
         label="Email",
@@ -150,10 +132,7 @@ class EmailLoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
-
-
 # ================= PROFILE UPDATE =================
-
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -163,43 +142,35 @@ class ProfileUpdateForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.get('instance')
         super().__init__(*args, **kwargs)
+        user = kwargs.get('instance')
 
+        # Show fields based on user type
         if user and user.user_type != 'student':
-            self.fields.pop('university_reg_no')
-
+            self.fields.pop('university_reg_no', None)
         if user and user.user_type != 'hod':
-            self.fields.pop('employee_id')
+            self.fields.pop('employee_id', None)
 
     def clean_phone(self):
         phone = self.cleaned_data.get('phone')
-
         if phone:
             if not phone.isdigit():
                 raise ValidationError("Phone number must contain only digits.")
-
             if len(phone) != 10:
                 raise ValidationError("Phone number must be exactly 10 digits.")
-
         return phone
 
     def clean_university_reg_no(self):
         reg = self.cleaned_data.get('university_reg_no')
-
         if reg and not reg.replace(" ", "").isalnum():
             raise ValidationError("University register number cannot contain special characters.")
-
         return reg
 
     def clean_employee_id(self):
         emp = self.cleaned_data.get('employee_id')
-
         if emp:
             if not re.match(r'^[A-Za-z0-9]+$', emp):
                 raise ValidationError("Employee ID can contain only letters and numbers.")
-
             if len(emp) > 8:
                 raise ValidationError("Employee ID cannot be more than 8 characters.")
-
         return emp
