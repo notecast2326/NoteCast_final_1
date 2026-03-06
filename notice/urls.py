@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.home, name='home'),
 
     # Use notice_by_category for categories
+    path('categories/', views.notice_categories, name='notice_categories'),
     path('categories/<str:cat>/', views.notice_by_category, name='notice_by_category'),
     path('notices/', views.notice_list, name='notice_list'),
     path('create/', views.create_notice, name='create_notice'),

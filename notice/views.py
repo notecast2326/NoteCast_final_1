@@ -119,6 +119,37 @@ def create_notice(request):
     return render(request, 'create_notice.html', {'form': form})
 
 
+
+@login_required
+def notice_categories(request):
+
+    user = request.user
+
+    # Role-based filtering (same logic as notice_list)
+    if user.user_type == 'student':
+        notices = Notice.objects.filter(
+            Q(category='office') |
+            Q(category='department', department=user.department)
+        )
+
+    elif user.user_type == 'hod':
+        notices = Notice.objects.filter(
+            Q(category='office') |
+            Q(category='department', department=user.department)
+        )
+
+    elif user.user_type == 'staff':
+        notices = Notice.objects.filter(category='office')
+
+    else:
+        notices = Notice.objects.none()
+
+    # 🔥 CHECK IF ANY URGENT NOTICE EXISTS
+    urgent_exists = notices.filter(display_category='urgent').exists()
+
+    return render(request, 'notice_categories.html', {
+        'urgent_exists': urgent_exists
+    })
 @login_required
 def notice_list(request):
     user = request.user
