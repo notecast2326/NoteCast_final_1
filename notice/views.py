@@ -283,14 +283,111 @@ def user_logout(request):
 
 
 # =================== CHATBOT ===================
+
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(
+    api_key=settings.GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
+
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(
+    api_key=settings.GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
+
 @csrf_exempt
 def chatbot(request):
     if request.method == "POST":
         data = json.loads(request.body)
         user_message = data.get("message", "").lower().strip()
-        # Add your rule-based and AI fallback logic here (same as before)
-        return JsonResponse({"reply": "Chatbot logic placeholder"})
 
+        # ================= SMART TOTAL / ADMISSION FEE SECTION =================
+
+        # Normalize common variations
+        user_message = user_message.replace("bcom", "b.com")
+        user_message = user_message.replace("b sc", "b.sc")
+        user_message = user_message.replace("ba ", "b.a ")
+
+        admission_fees = {
+            "computer science": "₹19,200",
+            "microbiology": "₹23,200",
+            "biotechnology": "₹20,200",
+            "b.com": "₹15,700",
+            "english": "₹18,700",
+        }
+
+        # Specific total/admission intent
+        if any(word in user_message for word in ["admission", "total", "tottal"]):
+            for course in admission_fees:
+                if course in user_message:
+                    return JsonResponse({
+                        "reply": f"Admission time fee for {course.title()} is {admission_fees[course]}."
+                    })
+        # ================= RULE BASED ANSWERS =================
+
+        rules = {
+
+            # 🔹 Basic Questions
+            "admission fee": "The admission fee for all courses is ₹2000.",
+            "affiliation fee": "The affiliation fee is ₹600.",
+            "id card fee": "The ID card fee is ₹100.",
+            "arts & sports fee": "The Arts & Sports fee is ₹500.",
+            "college union": "The College Union Activities & Magazine fee is ₹1000.",
+            "caution deposit": "The caution deposit is ₹500 (Refundable).",
+            "pta fee": "The PTA fee is ₹1600 (₹1500 for some courses).",
+
+            # 🔹 Course Specific
+            "sanctioned strength of b.sc computer science": "The sanctioned strength of B.Sc Computer Science is 35 students.",
+            "microbiology tuition fee": "The tuition fee of B.Sc Microbiology is ₹16000 per semester.",
+            "biochemistry tuition fee": "The tuition fee of B.Sc Biochemistry is ₹12000 per semester.",
+            "nil lab fee": "B.Com Marketing has NIL lab fee.",
+            "b.com tuition fee": "The tuition fee of B.Com courses is ₹9000 per semester.",
+            "b.a english tuition fee": "The tuition fee of B.A English is ₹11000 per semester.",
+            "b.a economics tuition fee": "The tuition fee of B.A Economics is ₹15000 per semester.",
+
+            # 🔹 Semester Fees
+            "semester fee of b.sc computer science": "The semester fee of B.Sc Computer Science is ₹11,000.",
+            "semester fee of b.sc microbiology": "The semester fee of B.Sc Microbiology is ₹16,000.",
+            "semester fee of b.com": "The semester fee of B.Com courses is ₹9,000.",
+            "semester fee of b.a economics": "The semester fee of B.A Economics is ₹16,000.",
+            "lowest semester fee": "B.Com courses have the lowest semester fee – ₹9,000.",
+
+            # 🔹 Comparison
+            "highest tuition fee": "B.Sc Microbiology & B.A Economics have the highest tuition fee – ₹16,000 per semester.",
+            "lowest tuition fee": "B.Com courses have the lowest tuition fee – ₹9,000 per semester.",
+            "sanctioned strength 26": "Courses with sanctioned strength 26: B.Sc Biochemistry, B.Sc Biotechnology, B.A English, B.A Economics.",
+            "sanctioned strength 40": "Courses with sanctioned strength 40: B.Com with Computer Application, B.Com Marketing, B.B.A.",
+        }
+
+        # 🔍 Flexible Rule Matching
+        for key in rules:
+            if all(word in user_message for word in key.split()):
+                return JsonResponse({"reply": rules[key]})
+
+        # ================= AI FALLBACK =================
+
+        try:
+            completion = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": "You are a helpful college assistant. Answer clearly and shortly."},
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=0.7
+            )
+
+            reply = completion.choices[0].message.content
+
+        except Exception as e:
+            print("AI ERROR:", e)
+            reply = "Sorry, AI service is temporarily unavailable."
+
+        return JsonResponse({"reply": reply})
 
 # =================== EVENTS ===================
 def all_events(request):
