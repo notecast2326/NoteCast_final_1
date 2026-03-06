@@ -2322,3 +2322,129 @@ h1,h2,h3,h4{
 .update-mode .create-btn:hover{
     box-shadow:0 15px 35px rgba(245,158,11,0.4);
 }
+
+
+
+
+
+
+
+/* Collapse nav links into a hamburger menu for mobile */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none; /* hide links initially */
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background: var(--primary);
+        padding: 20px;
+        border-radius: 12px;
+        width: 200px;
+        gap: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+
+    .logo-container {
+        flex: 1;
+    }
+
+    .menu-toggle {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+        color: white;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        height: 250px;  /* smaller height for mobile */
+        padding: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 24px;
+    }
+
+    .hero-content p {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-card,
+    .login-card,
+    .notice-create-container {
+        padding: 25px;
+        margin: 0 15px;
+    }
+
+    .register-title,
+    .login-title,
+    .notice-header h2 {
+        font-size: 22px;
+    }
+
+    .register-subtitle,
+    .login-subtitle,
+    .notice-header p {
+        font-size: 13px;
+    }
+
+    .register-btn,
+    .login-btn-main,
+    .create-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+/* Flexible grids */
+@media (max-width: 768px) {
+    .category-grid,
+    .updates-gallery,
+    .vision-mission,
+    .facility-grid,
+    .gallery-modern,
+    .about-grid1,
+    .about-detailed-grid {
+        grid-template-columns: 1fr; /* single column for small screens */
+        gap: 20px;
+    }
+
+    .update-card, .category-card, .cat-card {
+        margin: auto;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 30px 10px;
+    }
+
+    .social-icons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .pdf-preview,
+    .pdf-frame,
+    .file-card,
+    .file-thumb img {
+        width: 100%;
+        height: auto;
+    }
+}
