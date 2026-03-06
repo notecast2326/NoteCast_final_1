@@ -1,4 +1,3 @@
-
 from django.urls import path
 from . import views
 from .views import chatbot
@@ -6,8 +5,8 @@ from .views import chatbot
 urlpatterns = [
     path('', views.home, name='home'),
 
-    path('categories/', views.notice_categories, name='notice_categories'),
-    path('notices/category/<str:cat>/', views.notice_by_category, name='notice_by_category'),
+    # Use notice_by_category for categories
+    path('categories/<str:cat>/', views.notice_by_category, name='notice_by_category'),
     path('notices/', views.notice_list, name='notice_list'),
     path('create/', views.create_notice, name='create_notice'),
     path('notices/<int:pk>/', views.notice_detail, name='notice_detail'),
@@ -24,6 +23,5 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     path('chatbot/', views.chatbot, name='chatbot'),
-    path('about/', views.about, name='about')
-
+    path('about/', views.about, name='about'),
 ]
